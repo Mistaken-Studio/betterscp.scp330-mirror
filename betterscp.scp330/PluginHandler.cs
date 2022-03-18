@@ -4,9 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
 using Exiled.API.Enums;
 using Exiled.API.Features;
-using System;
 
 namespace Mistaken.BetterSCP.SCP330
 {

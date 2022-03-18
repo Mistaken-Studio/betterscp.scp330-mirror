@@ -11,6 +11,5 @@ namespace Mistaken.BetterSCP.SCP330
     /// <inheritdoc/>
     public class Translation : ITranslation
     {
-
     }
 }

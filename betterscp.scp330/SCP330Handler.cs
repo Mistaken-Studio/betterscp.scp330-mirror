@@ -4,13 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Exiled.API.Features.Items;
 using InventorySystem.Items.Usables.Scp330;
 using Mistaken.API.Diagnostics;
 using Scp914;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Mistaken.BetterSCP.SCP330
 {
@@ -25,15 +25,15 @@ namespace Mistaken.BetterSCP.SCP330
 
         public override void OnEnable()
         {
-            Exiled.Events.Handlers.Scp914.UpgradingItem += Scp914_UpgradingItem;
+            Exiled.Events.Handlers.Scp914.UpgradingItem += this.Scp914_UpgradingItem;
         }
 
         public override void OnDisable()
         {
-            Exiled.Events.Handlers.Scp914.UpgradingItem -= Scp914_UpgradingItem;
+            Exiled.Events.Handlers.Scp914.UpgradingItem -= this.Scp914_UpgradingItem;
         }
 
-        readonly List<CandyKindID> CandyList = new List<CandyKindID>()
+        private readonly List<CandyKindID> candyList = new List<CandyKindID>()
         {
             CandyKindID.Yellow,
             CandyKindID.Green,
@@ -53,7 +53,10 @@ namespace Mistaken.BetterSCP.SCP330
 
             switch (ev.KnobSetting)
             {
-                case Scp914KnobSetting.Rough: case Scp914KnobSetting.Coarse: ev.Item.Destroy(); break;
+                case Scp914KnobSetting.Rough:
+                case Scp914KnobSetting.Coarse:
+                    ev.Item.Destroy();
+                    break;
                 case Scp914KnobSetting.OneToOne:
                     {
                         if (UnityEngine.Random.Range(0, 100) <= 35)
@@ -61,11 +64,13 @@ namespace Mistaken.BetterSCP.SCP330
                             ev.Item.Destroy();
                             break;
                         }
+
                         List<CandyKindID> candies = Enum.GetValues(typeof(CandyKindID)).ToArray<CandyKindID>().ToList();
                         candies.ShuffleList();
                         scp330.ExposedCandy = candies.First(x => x != CandyKindID.Pink && x != CandyKindID.None);
                         break;
                     }
+
                 case Scp914KnobSetting.Fine:
                     {
                         if (UnityEngine.Random.Range(0, 100) <= 35)
@@ -73,13 +78,14 @@ namespace Mistaken.BetterSCP.SCP330
                             ev.Item.Destroy();
                             break;
                         }
-                        int index = CandyList.IndexOf(scp330.ExposedCandy) + 1;
+
+                        int index = this.candyList.IndexOf(scp330.ExposedCandy) + 1;
                         int random = UnityEngine.Random.Range(0, 100);
-                        if (CandyList[index] == CandyKindID.Rainbow)
+                        if (this.candyList[index] == CandyKindID.Rainbow)
                         {
                             if (random >= 10)
                             {
-                                scp330.ExposedCandy = CandyList[index];
+                                scp330.ExposedCandy = this.candyList[index];
                             }
                             else if (random <= 11 && random >= 50)
                             {
@@ -91,11 +97,14 @@ namespace Mistaken.BetterSCP.SCP330
                             {
                                 ev.Item.Destroy();
                             }
+
                             break;
                         }
-                        scp330.ExposedCandy = CandyList[index];
+
+                        scp330.ExposedCandy = this.candyList[index];
                         break;
                     }
+
                 case Scp914KnobSetting.VeryFine:
                     {
                         if (UnityEngine.Random.Range(0, 100) <= 50)
@@ -103,13 +112,14 @@ namespace Mistaken.BetterSCP.SCP330
                             ev.Item.Destroy();
                             break;
                         }
-                        int index = CandyList.IndexOf(scp330.ExposedCandy) + 1;
+
+                        int index = this.candyList.IndexOf(scp330.ExposedCandy) + 1;
                         int random = UnityEngine.Random.Range(0, 100);
-                        if (CandyList[index] == CandyKindID.Rainbow)
+                        if (this.candyList[index] == CandyKindID.Rainbow)
                         {
                             if (random >= 5)
                             {
-                                scp330.ExposedCandy = CandyList[index];
+                                scp330.ExposedCandy = this.candyList[index];
                             }
                             else if (random <= 6 && random >= 35)
                             {
@@ -121,9 +131,11 @@ namespace Mistaken.BetterSCP.SCP330
                             {
                                 ev.Item.Destroy();
                             }
+
                             break;
                         }
-                        scp330.ExposedCandy = CandyList[index];
+
+                        scp330.ExposedCandy = this.candyList[index];
                         break;
                     }
             }
