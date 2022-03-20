@@ -7,6 +7,7 @@
 using System;
 using Exiled.API.Enums;
 using Exiled.API.Features;
+using HarmonyLib;
 
 namespace Mistaken.BetterSCP.SCP330
 {
@@ -32,6 +33,8 @@ namespace Mistaken.BetterSCP.SCP330
         public override void OnEnabled()
         {
             Instance = this;
+            harmony = new Harmony("mistaken.betterscp.scp330.patch");
+            harmony.PatchAll();
 
             new SCP330Handler(this);
 
@@ -43,11 +46,15 @@ namespace Mistaken.BetterSCP.SCP330
         /// <inheritdoc/>
         public override void OnDisabled()
         {
+            harmony.UnpatchAll();
+
             API.Diagnostics.Module.OnDisable(this);
 
             base.OnDisabled();
         }
 
         internal static PluginHandler Instance { get; private set; }
+
+        private static Harmony harmony;
     }
 }
