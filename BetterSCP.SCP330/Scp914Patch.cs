@@ -4,10 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using HarmonyLib;
 using InventorySystem.Items.Pickups;
@@ -35,85 +32,77 @@ namespace Mistaken.BetterSCP.SCP330
         public static bool Prefix(ItemPickupBase pickup, Vector3 moveVector, Scp914KnobSetting setting)
         {
             if (!(pickup is Scp330Pickup p))
+            {
                 return true;
+            }
 
             var newPos = pickup.transform.position + moveVector;
-
-            pickup.DestroySelf();
-
-            Scp330 bag = new Scp330(ItemType.SCP330);
 
             switch (setting)
             {
                 case Scp914KnobSetting.OneToOne:
                     {
-                        if (UnityEngine.Random.Range(0, 100) <= 35)
+                        if (Random.Range(0, 100) <= 35)
+                        {
                             break;
+                        }
 
                         var candyType = Scp330Candies.GetRandom();
-                        Scp330Pickup obj = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
-                        obj.NetworkExposedCandy = candyType;
-                        NetworkServer.Spawn(obj.gameObject);
-                        obj.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
-
+                        p.NetworkExposedCandy = candyType;
                         break;
                     }
 
                 case Scp914KnobSetting.Fine:
                     {
-                        if (UnityEngine.Random.Range(0, 100) <= 35)
+                        if (Random.Range(0, 100) <= 35)
+                        {
                             break;
+                        }
 
                         int index = CandyList.IndexOf(p.NetworkExposedCandy) + 1;
-                        int random = UnityEngine.Random.Range(0, 100);
+                        int random = Random.Range(0, 100);
                         if (CandyList[index] == CandyKindID.Rainbow)
                         {
                             if (random >= 10)
                             {
-                                Scp330Pickup obj = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
-                                obj.NetworkExposedCandy = CandyList[index];
-                                NetworkServer.Spawn(obj.gameObject);
-                                obj.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
+                                p.NetworkExposedCandy = CandyList[index];
                             }
                             else if (random <= 11 && random >= 50)
+                            {
                                 new Item(ItemType.Painkillers).Spawn(newPos);
+                            }
 
                             return false;
                         }
 
-                        Scp330Pickup candyPickup = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
-                        candyPickup.NetworkExposedCandy = CandyList[index];
-                        NetworkServer.Spawn(candyPickup.gameObject);
-                        candyPickup.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
+                        p.NetworkExposedCandy = CandyList[index];
                         break;
                     }
 
                 case Scp914KnobSetting.VeryFine:
                     {
-                        if (UnityEngine.Random.Range(0, 100) <= 50)
+                        if (Random.Range(0, 100) <= 50)
+                        {
                             break;
+                        }
 
                         int index = CandyList.IndexOf(p.NetworkExposedCandy) + 1;
-                        int random = UnityEngine.Random.Range(0, 100);
+                        int random = Random.Range(0, 100);
                         if (CandyList[index] == CandyKindID.Rainbow)
                         {
                             if (random >= 5)
                             {
-                                Scp330Pickup obj = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
-                                obj.NetworkExposedCandy = CandyList[index];
-                                NetworkServer.Spawn(obj.gameObject);
-                                obj.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
+                                p.NetworkExposedCandy = CandyList[index];
                             }
                             else if (random <= 6 && random >= 35)
+                            {
                                 new Item(ItemType.Painkillers).Spawn(newPos);
+                            }
 
                             return false;
                         }
 
-                        Scp330Pickup candyPickup = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
-                        candyPickup.NetworkExposedCandy = CandyList[index];
-                        NetworkServer.Spawn(candyPickup.gameObject);
-                        candyPickup.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
+                        p.NetworkExposedCandy = CandyList[index];
                         break;
                     }
             }
