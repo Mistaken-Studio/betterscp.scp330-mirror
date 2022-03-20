@@ -18,11 +18,9 @@ using UnityEngine;
 
 namespace Mistaken.BetterSCP.SCP330
 {
-    /// <inheritdoc/>
     [HarmonyPatch(typeof(Scp914Upgrader), nameof(Scp914Upgrader.ProcessPickup))]
-    public class Scp914Patch
+    internal class Scp914Patch
     {
-        /// <inheritdoc/>
         public static readonly List<CandyKindID> CandyList = new List<CandyKindID>()
         {
             CandyKindID.Yellow,
@@ -34,7 +32,6 @@ namespace Mistaken.BetterSCP.SCP330
             CandyKindID.Pink,
         };
 
-        /// <inheritdoc/>
         public static bool Prefix(ItemPickupBase pickup, Vector3 moveVector, Scp914KnobSetting setting)
         {
             if (!(pickup is Scp330Pickup p))
@@ -44,7 +41,6 @@ namespace Mistaken.BetterSCP.SCP330
             pickup.DestroySelf();
 
             Item pickup2 = new Item(ItemType.SCP330);
-            Scp330Pickup candy = pickup2.Base.PickupDropModel as Scp330Pickup;
 
             switch (setting)
             {
@@ -57,7 +53,8 @@ namespace Mistaken.BetterSCP.SCP330
 
                         List<CandyKindID> candies = Enum.GetValues(typeof(CandyKindID)).ToArray<CandyKindID>().ToList();
                         candies.ShuffleList();
-                        candy.ExposedCandy = candies.First(x => x != CandyKindID.Pink && x != CandyKindID.None);
+                        var candy = pickup2.Spawn(newPos).Base as Scp330Pickup;
+                        candy.NetworkExposedCandy = candies.First(x => x != CandyKindID.Pink && x != CandyKindID.None);
                         break;
                     }
 
@@ -74,8 +71,8 @@ namespace Mistaken.BetterSCP.SCP330
                         {
                             if (random >= 10)
                             {
-                                candy.ExposedCandy = CandyList[index];
-                                pickup2.Spawn(newPos);
+                                var candy = pickup2.Spawn(newPos).Base as Scp330Pickup;
+                                candy.NetworkExposedCandy = CandyList[index];
                             }
                             else if (random <= 11 && random >= 50)
                             {
@@ -102,8 +99,8 @@ namespace Mistaken.BetterSCP.SCP330
                         {
                             if (random >= 5)
                             {
-                                candy.ExposedCandy = CandyList[index];
-                                pickup2.Spawn(newPos);
+                                var candy = pickup2.Spawn(newPos).Base as Scp330Pickup;
+                                candy.NetworkExposedCandy = CandyList[index];
                             }
                             else if (random <= 6 && random >= 35)
                             {
@@ -118,7 +115,6 @@ namespace Mistaken.BetterSCP.SCP330
                     }
             }
 
-            pickup2.Spawn(newPos);
             return false;
         }
     }

@@ -12,7 +12,7 @@ using HarmonyLib;
 namespace Mistaken.BetterSCP.SCP330
 {
     /// <inheritdoc/>
-    public class PluginHandler : Plugin<Config, Translation>
+    public class PluginHandler : Plugin<Config>
     {
         /// <inheritdoc/>
         public override string Author => "Mistaken Devs";
@@ -21,7 +21,7 @@ namespace Mistaken.BetterSCP.SCP330
         public override string Name => "BetterSCP-SCP330";
 
         /// <inheritdoc/>
-        public override string Prefix => "MB-SCP330";
+        public override string Prefix => "MSCP330";
 
         /// <inheritdoc/>
         public override PluginPriority Priority => PluginPriority.Medium;
@@ -36,8 +36,6 @@ namespace Mistaken.BetterSCP.SCP330
             harmony = new Harmony("mistaken.betterscp.scp330.patch");
             harmony.PatchAll();
 
-            API.Diagnostics.Module.OnEnable(this);
-
             base.OnEnabled();
         }
 
@@ -45,8 +43,6 @@ namespace Mistaken.BetterSCP.SCP330
         public override void OnDisabled()
         {
             harmony.UnpatchAll();
-
-            API.Diagnostics.Module.OnDisable(this);
 
             base.OnDisabled();
         }
