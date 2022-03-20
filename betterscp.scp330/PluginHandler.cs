@@ -36,8 +36,6 @@ namespace Mistaken.BetterSCP.SCP330
             harmony = new Harmony("mistaken.betterscp.scp330.patch");
             harmony.PatchAll();
 
-            new SCP330Handler(this);
-
             API.Diagnostics.Module.OnEnable(this);
 
             base.OnEnabled();
