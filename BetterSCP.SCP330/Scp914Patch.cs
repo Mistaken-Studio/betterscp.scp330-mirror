@@ -38,32 +38,31 @@ namespace Mistaken.BetterSCP.SCP330
                 return true;
 
             var newPos = pickup.transform.position + moveVector;
+
             pickup.DestroySelf();
 
-            Item pickup2 = new Item(ItemType.SCP330);
+            Scp330 bag = new Scp330(ItemType.SCP330);
 
             switch (setting)
             {
                 case Scp914KnobSetting.OneToOne:
                     {
                         if (UnityEngine.Random.Range(0, 100) <= 35)
-                        {
                             break;
-                        }
 
-                        List<CandyKindID> candies = Enum.GetValues(typeof(CandyKindID)).ToArray<CandyKindID>().ToList();
-                        candies.ShuffleList();
-                        var candy = pickup2.Spawn(newPos).Base as Scp330Pickup;
-                        candy.NetworkExposedCandy = candies.First(x => x != CandyKindID.Pink && x != CandyKindID.None);
+                        var candyType = Scp330Candies.GetRandom();
+                        Scp330Pickup obj = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
+                        obj.NetworkExposedCandy = candyType;
+                        NetworkServer.Spawn(obj.gameObject);
+                        obj.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
+
                         break;
                     }
 
                 case Scp914KnobSetting.Fine:
                     {
                         if (UnityEngine.Random.Range(0, 100) <= 35)
-                        {
                             break;
-                        }
 
                         int index = CandyList.IndexOf(p.NetworkExposedCandy) + 1;
                         int random = UnityEngine.Random.Range(0, 100);
@@ -71,27 +70,28 @@ namespace Mistaken.BetterSCP.SCP330
                         {
                             if (random >= 10)
                             {
-                                var candy = pickup2.Spawn(newPos).Base as Scp330Pickup;
-                                candy.NetworkExposedCandy = CandyList[index];
+                                Scp330Pickup obj = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
+                                obj.NetworkExposedCandy = CandyList[index];
+                                NetworkServer.Spawn(obj.gameObject);
+                                obj.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
                             }
                             else if (random <= 11 && random >= 50)
-                            {
-                                Pickup pain = new Item(ItemType.Painkillers).Spawn(newPos);
-                            }
+                                new Item(ItemType.Painkillers).Spawn(newPos);
 
                             return false;
                         }
 
-                        p.ExposedCandy = CandyList[index];
+                        Scp330Pickup candyPickup = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
+                        candyPickup.NetworkExposedCandy = CandyList[index];
+                        NetworkServer.Spawn(candyPickup.gameObject);
+                        candyPickup.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
                         break;
                     }
 
                 case Scp914KnobSetting.VeryFine:
                     {
                         if (UnityEngine.Random.Range(0, 100) <= 50)
-                        {
                             break;
-                        }
 
                         int index = CandyList.IndexOf(p.NetworkExposedCandy) + 1;
                         int random = UnityEngine.Random.Range(0, 100);
@@ -99,18 +99,21 @@ namespace Mistaken.BetterSCP.SCP330
                         {
                             if (random >= 5)
                             {
-                                var candy = pickup2.Spawn(newPos).Base as Scp330Pickup;
-                                candy.NetworkExposedCandy = CandyList[index];
+                                Scp330Pickup obj = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
+                                obj.NetworkExposedCandy = CandyList[index];
+                                NetworkServer.Spawn(obj.gameObject);
+                                obj.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
                             }
                             else if (random <= 6 && random >= 35)
-                            {
-                                Pickup pain = new Item(ItemType.Painkillers).Spawn(newPos);
-                            }
+                                new Item(ItemType.Painkillers).Spawn(newPos);
 
                             return false;
                         }
 
-                        p.ExposedCandy = CandyList[index];
+                        Scp330Pickup candyPickup = (Scp330Pickup)GameObject.Instantiate(bag.Base.PickupDropModel, newPos, Quaternion.identity);
+                        candyPickup.NetworkExposedCandy = CandyList[index];
+                        NetworkServer.Spawn(candyPickup.gameObject);
+                        candyPickup.InfoReceived(PickupSyncInfo.None, bag.Base.PickupDropModel.NetworkInfo);
                         break;
                     }
             }
