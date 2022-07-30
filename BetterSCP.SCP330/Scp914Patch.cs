@@ -19,16 +19,6 @@ namespace Mistaken.BetterSCP.SCP330
     [HarmonyPatch(typeof(Scp914Upgrader), nameof(Scp914Upgrader.ProcessPickup))]
     internal class Scp914Patch
     {
-        public const int OneToOneDestroyChance = 35;
-
-        public const int FineDestroyChance = 35;
-        public const int FinePinkChance = 10;
-        public const int FinePinkPillsChance = 50;
-
-        public const int VeryFineDestroyChance = 50;
-        public const int VeryFinePinkChance = 5;
-        public const int VeryFinePinkPillsChance = 30;
-
         public static readonly List<CandyKindID> CandyList = new List<CandyKindID>()
         {
             CandyKindID.Yellow,
@@ -60,12 +50,6 @@ namespace Mistaken.BetterSCP.SCP330
                     {
                         case Scp914KnobSetting.OneToOne:
                             {
-                                if (Random.Range(0, 100) < OneToOneDestroyChance)
-                                {
-                                    p.StoredCandies.Remove(candy);
-                                    break;
-                                }
-
                                 var candyType = Scp330Candies.GetRandom();
                                 p.StoredCandies.Remove(candy);
                                 p.StoredCandies.Add(candyType);
@@ -74,20 +58,14 @@ namespace Mistaken.BetterSCP.SCP330
 
                         case Scp914KnobSetting.Fine:
                             {
-                                if (Random.Range(0, 100) < FineDestroyChance)
-                                {
-                                    p.StoredCandies.Remove(candy);
-                                    break;
-                                }
-
                                 int index = CandyList.IndexOf(candy) + 1;
                                 index %= CandyList.Count;
                                 int random = Random.Range(0, 100);
                                 if (CandyList[index] == CandyKindID.Pink)
                                 {
-                                    if (random < FinePinkChance)
+                                    if (random < PluginHandler.Instance.Config.FinePinkChance)
                                         p.StoredCandies.Add(CandyList[index]);
-                                    else if (random >= FinePinkChance && random < FinePinkChance + FinePinkPillsChance)
+                                    else if (random >= PluginHandler.Instance.Config.FinePinkChance && random < PluginHandler.Instance.Config.FinePinkChance + PluginHandler.Instance.Config.FinePinkPillsChance)
                                         new Item(ItemType.Painkillers).Spawn(newPos);
 
                                     p.StoredCandies.Remove(candy);
@@ -101,7 +79,7 @@ namespace Mistaken.BetterSCP.SCP330
 
                         case Scp914KnobSetting.VeryFine:
                             {
-                                if (Random.Range(0, 100) < VeryFineDestroyChance)
+                                if (Random.Range(0, 100) < PluginHandler.Instance.Config.VeryFineDestroyChance)
                                 {
                                     p.StoredCandies.Remove(candy);
                                     break;
@@ -112,9 +90,9 @@ namespace Mistaken.BetterSCP.SCP330
                                 int random = Random.Range(0, 100);
                                 if (CandyList[index] == CandyKindID.Pink)
                                 {
-                                    if (random < VeryFinePinkChance)
+                                    if (random < PluginHandler.Instance.Config.VeryFinePinkChance)
                                         p.StoredCandies.Add(CandyList[index]);
-                                    else if (random >= VeryFinePinkChance && random < VeryFinePinkChance + VeryFinePinkPillsChance)
+                                    else if (random >= PluginHandler.Instance.Config.VeryFinePinkChance && random < PluginHandler.Instance.Config.VeryFinePinkChance + PluginHandler.Instance.Config.VeryFinePinkPillsChance)
                                         new Item(ItemType.Painkillers).Spawn(newPos);
 
                                     p.StoredCandies.Remove(candy);
