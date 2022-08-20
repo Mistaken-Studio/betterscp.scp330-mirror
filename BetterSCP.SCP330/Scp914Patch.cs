@@ -43,16 +43,15 @@ namespace Mistaken.BetterSCP.SCP330
                     return false;
                 }
 
-                var newPos = pickup.transform.position + moveVector;
+                var outputPos = pickup.transform.position + moveVector;
                 foreach (var candy in p.StoredCandies.ToArray())
                 {
                     switch (setting)
                     {
                         case Scp914KnobSetting.OneToOne:
                             {
-                                var candyType = Scp330Candies.GetRandom();
                                 p.StoredCandies.Remove(candy);
-                                p.StoredCandies.Add(candyType);
+                                p.StoredCandies.Add(Scp330Candies.GetRandom());
                                 break;
                             }
 
@@ -60,13 +59,17 @@ namespace Mistaken.BetterSCP.SCP330
                             {
                                 int index = CandyList.IndexOf(candy) + 1;
                                 index %= CandyList.Count;
-                                int random = Random.Range(0, 100);
                                 if (CandyList[index] == CandyKindID.Pink)
                                 {
-                                    if (random < PluginHandler.Instance.Config.FinePinkChance)
-                                        p.StoredCandies.Add(CandyList[index]);
-                                    else if (random >= PluginHandler.Instance.Config.FinePinkChance && random < PluginHandler.Instance.Config.FinePinkChance + PluginHandler.Instance.Config.FinePinkPillsChance)
-                                        new Item(ItemType.Painkillers).Spawn(newPos);
+                                    switch (UnityEngine.Random.Range(1, 101))
+                                    {
+                                        case int x when x <= PluginHandler.Instance.Config.FinePinkChance:
+                                            p.StoredCandies.Add(CandyList[index]);
+                                            break;
+                                        case int x when x <= PluginHandler.Instance.Config.FinePinkPillsChance + PluginHandler.Instance.Config.FinePinkChance:
+                                            new Item(ItemType.Painkillers).Spawn(outputPos);
+                                            break;
+                                    }
 
                                     p.StoredCandies.Remove(candy);
                                     break;
@@ -79,7 +82,7 @@ namespace Mistaken.BetterSCP.SCP330
 
                         case Scp914KnobSetting.VeryFine:
                             {
-                                if (Random.Range(0, 100) < PluginHandler.Instance.Config.VeryFineDestroyChance)
+                                if (UnityEngine.Random.Range(1, 101) <= PluginHandler.Instance.Config.VeryFineDestroyChance)
                                 {
                                     p.StoredCandies.Remove(candy);
                                     break;
@@ -87,13 +90,17 @@ namespace Mistaken.BetterSCP.SCP330
 
                                 int index = CandyList.IndexOf(candy) + 2;
                                 index %= CandyList.Count;
-                                int random = Random.Range(0, 100);
                                 if (CandyList[index] == CandyKindID.Pink)
                                 {
-                                    if (random < PluginHandler.Instance.Config.VeryFinePinkChance)
-                                        p.StoredCandies.Add(CandyList[index]);
-                                    else if (random >= PluginHandler.Instance.Config.VeryFinePinkChance && random < PluginHandler.Instance.Config.VeryFinePinkChance + PluginHandler.Instance.Config.VeryFinePinkPillsChance)
-                                        new Item(ItemType.Painkillers).Spawn(newPos);
+                                    switch (UnityEngine.Random.Range(1, 101))
+                                    {
+                                        case int x when x <= PluginHandler.Instance.Config.VeryFinePinkChance:
+                                            p.StoredCandies.Add(CandyList[index]);
+                                            break;
+                                        case int x when x <= PluginHandler.Instance.Config.VeryFinePinkPillsChance + PluginHandler.Instance.Config.VeryFinePinkChance:
+                                            new Item(ItemType.Painkillers).Spawn(outputPos);
+                                            break;
+                                    }
 
                                     p.StoredCandies.Remove(candy);
                                     break;
