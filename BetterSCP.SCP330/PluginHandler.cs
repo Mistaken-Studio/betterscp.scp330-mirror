@@ -27,7 +27,7 @@ namespace Mistaken.BetterSCP.SCP330
         public override PluginPriority Priority => PluginPriority.Medium;
 
         /// <inheritdoc/>
-        public override Version RequiredExiledVersion => new Version(5, 0, 0);
+        public override Version RequiredExiledVersion => new Version(5, 2, 2);
 
         /// <inheritdoc/>
         public override void OnEnabled()

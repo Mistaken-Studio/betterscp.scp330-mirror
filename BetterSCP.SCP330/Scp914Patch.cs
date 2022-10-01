@@ -67,7 +67,7 @@ namespace Mistaken.BetterSCP.SCP330
                                             p.StoredCandies.Add(CandyList[index]);
                                             break;
                                         case int x when x <= PluginHandler.Instance.Config.FinePinkPillsChance + PluginHandler.Instance.Config.FinePinkChance:
-                                            new Item(ItemType.Painkillers).Spawn(outputPos);
+                                            Item.Create(ItemType.Painkillers).Spawn(outputPos);
                                             break;
                                     }
 
@@ -98,7 +98,7 @@ namespace Mistaken.BetterSCP.SCP330
                                             p.StoredCandies.Add(CandyList[index]);
                                             break;
                                         case int x when x <= PluginHandler.Instance.Config.VeryFinePinkPillsChance + PluginHandler.Instance.Config.VeryFinePinkChance:
-                                            new Item(ItemType.Painkillers).Spawn(outputPos);
+                                            Item.Create(ItemType.Painkillers).Spawn(outputPos);
                                             break;
                                     }
 
