@@ -1,25 +1,19 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="Scp914Patch.cs" company="Mistaken">
-// Copyright (c) Mistaken. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
-
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using Exiled.API.Features;
-using Exiled.API.Features.Items;
 using HarmonyLib;
+using InventorySystem;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables.Scp330;
+using PluginAPI.Core;
 using Scp914;
 using UnityEngine;
 
 namespace Mistaken.BetterSCP.SCP330
 {
     [HarmonyPatch(typeof(Scp914Upgrader), nameof(Scp914Upgrader.ProcessPickup))]
-    internal class Scp914Patch
+    internal static class Scp914UpgraderPatch
     {
-        public static readonly List<CandyKindID> CandyList = new List<CandyKindID>()
+        public static readonly CandyKindID[] CandyList = new[]
         {
             CandyKindID.Yellow,
             CandyKindID.Green,
@@ -32,7 +26,7 @@ namespace Mistaken.BetterSCP.SCP330
 
         public static bool Prefix(ItemPickupBase pickup, Vector3 moveVector, Scp914KnobSetting setting)
         {
-            if (!(pickup is Scp330Pickup p))
+            if (pickup is not Scp330Pickup p)
                 return true;
 
             try
@@ -44,6 +38,7 @@ namespace Mistaken.BetterSCP.SCP330
                 }
 
                 var outputPos = pickup.transform.position + moveVector;
+
                 foreach (var candy in p.StoredCandies.ToArray())
                 {
                     switch (setting)
@@ -58,16 +53,23 @@ namespace Mistaken.BetterSCP.SCP330
                         case Scp914KnobSetting.Fine:
                             {
                                 int index = CandyList.IndexOf(candy) + 1;
-                                index %= CandyList.Count;
+                                index %= CandyList.Length;
+
                                 if (CandyList[index] == CandyKindID.Pink)
                                 {
                                     switch (UnityEngine.Random.Range(1, 101))
                                     {
-                                        case int x when x <= PluginHandler.Instance.Config.FinePinkChance:
+                                        case int x when x <= Plugin.Instance.Config.FinePinkChance:
                                             p.StoredCandies.Add(CandyList[index]);
                                             break;
-                                        case int x when x <= PluginHandler.Instance.Config.FinePinkPillsChance + PluginHandler.Instance.Config.FinePinkChance:
-                                            Item.Create(ItemType.Painkillers).Spawn(outputPos);
+
+                                        case int x when x <= Plugin.Instance.Config.FinePinkPillsChance + Plugin.Instance.Config.FinePinkChance:
+                                            if (InventoryItemLoader.AvailableItems.TryGetValue(ItemType.Painkillers, out var item))
+                                            {
+                                                PickupSyncInfo psi = new(ItemType.Painkillers, outputPos, Quaternion.identity, item.Weight);
+                                                ReferenceHub.HostHub.inventory.ServerCreatePickup(item, psi);
+                                            }
+
                                             break;
                                     }
 
@@ -82,23 +84,29 @@ namespace Mistaken.BetterSCP.SCP330
 
                         case Scp914KnobSetting.VeryFine:
                             {
-                                if (UnityEngine.Random.Range(1, 101) <= PluginHandler.Instance.Config.VeryFineDestroyChance)
+                                if (UnityEngine.Random.Range(1, 101) <= Plugin.Instance.Config.VeryFineDestroyChance)
                                 {
                                     p.StoredCandies.Remove(candy);
                                     break;
                                 }
 
                                 int index = CandyList.IndexOf(candy) + 2;
-                                index %= CandyList.Count;
+                                index %= CandyList.Length;
+
                                 if (CandyList[index] == CandyKindID.Pink)
                                 {
                                     switch (UnityEngine.Random.Range(1, 101))
                                     {
-                                        case int x when x <= PluginHandler.Instance.Config.VeryFinePinkChance:
+                                        case int x when x <= Plugin.Instance.Config.VeryFinePinkChance:
                                             p.StoredCandies.Add(CandyList[index]);
                                             break;
-                                        case int x when x <= PluginHandler.Instance.Config.VeryFinePinkPillsChance + PluginHandler.Instance.Config.VeryFinePinkChance:
-                                            Item.Create(ItemType.Painkillers).Spawn(outputPos);
+                                        case int x when x <= Plugin.Instance.Config.VeryFinePinkPillsChance + Plugin.Instance.Config.VeryFinePinkChance:
+                                            if (InventoryItemLoader.AvailableItems.TryGetValue(ItemType.Painkillers, out var item))
+                                            {
+                                                PickupSyncInfo psi = new(ItemType.Painkillers, outputPos, Quaternion.identity, item.Weight);
+                                                ReferenceHub.HostHub.inventory.ServerCreatePickup(item, psi);
+                                            }
+
                                             break;
                                     }
 
@@ -125,14 +133,13 @@ namespace Mistaken.BetterSCP.SCP330
                     p.transform.position += moveVector;
                     p.RefreshPositionAndRotation();
                 }
-
-                return false;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Log.Error(ex);
-                return false;
+                Log.Error(ex.ToString());
             }
+
+            return false;
         }
     }
 }
