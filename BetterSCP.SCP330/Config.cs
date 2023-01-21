@@ -8,7 +8,7 @@ internal sealed class Config
     public bool Debug { get; set; } = false;
 
     [Description("Chance to get Pink Candy on Fine setting")]
-    public int FinePinkChance { get; set; } = 10;
+    public int FinePinkChance { get; set; } = 3;
 
     [Description("Chance to get Painkillers when making Pink Candy on Fine setting")]
     public int FinePinkPillsChance { get; set; } = 50;
@@ -17,7 +17,7 @@ internal sealed class Config
     public int VeryFineDestroyChance { get; set; } = 25;
 
     [Description("Chance to get Pink Candy on Very Fine setting")]
-    public int VeryFinePinkChance { get; set; } = 10;
+    public int VeryFinePinkChance { get; set; } = 5;
 
     [Description("Chance to get Painkillers when making Pink Candy on Very Fine setting")]
     public int VeryFinePinkPillsChance { get; set; } = 30;
