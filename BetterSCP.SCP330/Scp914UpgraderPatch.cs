@@ -4,142 +4,144 @@ using HarmonyLib;
 using InventorySystem;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables.Scp330;
+using Mirror;
 using PluginAPI.Core;
 using Scp914;
 using UnityEngine;
 
-namespace Mistaken.BetterSCP.SCP330
+namespace Mistaken.BetterSCP.SCP330;
+
+[HarmonyPatch(typeof(Scp914Upgrader), nameof(Scp914Upgrader.ProcessPickup))]
+internal static class Scp914UpgraderPatch
 {
-    [HarmonyPatch(typeof(Scp914Upgrader), nameof(Scp914Upgrader.ProcessPickup))]
-    internal static class Scp914UpgraderPatch
+    public static readonly CandyKindID[] CandyList = new[]
     {
-        public static readonly CandyKindID[] CandyList = new[]
-        {
-            CandyKindID.Yellow,
-            CandyKindID.Green,
-            CandyKindID.Red,
-            CandyKindID.Purple,
-            CandyKindID.Blue,
-            CandyKindID.Rainbow,
-            CandyKindID.Pink,
-        };
+        CandyKindID.Yellow,
+        CandyKindID.Green,
+        CandyKindID.Red,
+        CandyKindID.Purple,
+        CandyKindID.Blue,
+        CandyKindID.Rainbow,
+        CandyKindID.Pink,
+    };
 
-        public static bool Prefix(ItemPickupBase pickup, Vector3 moveVector, Scp914KnobSetting setting)
-        {
-            if (pickup is not Scp330Pickup p)
-                return true;
+    public static bool Prefix(ItemPickupBase pickup, Vector3 moveVector, Scp914KnobSetting setting)
+    {
+        if (pickup is not Scp330Pickup p)
+            return true;
 
-            try
+        try
+        {
+            if (setting == Scp914KnobSetting.Coarse || setting == Scp914KnobSetting.Rough)
             {
-                if (setting == Scp914KnobSetting.Coarse || setting == Scp914KnobSetting.Rough)
+                p.DestroySelf();
+                return false;
+            }
+
+            var outputPos = pickup.transform.position + moveVector;
+
+            foreach (var candy in p.StoredCandies.ToArray())
+            {
+                switch (setting)
                 {
-                    p.DestroySelf();
-                    return false;
-                }
-
-                var outputPos = pickup.transform.position + moveVector;
-
-                foreach (var candy in p.StoredCandies.ToArray())
-                {
-                    switch (setting)
-                    {
-                        case Scp914KnobSetting.OneToOne:
-                            {
-                                p.StoredCandies.Remove(candy);
-                                p.StoredCandies.Add(Scp330Candies.GetRandom());
-                                break;
-                            }
-
-                        case Scp914KnobSetting.Fine:
-                            {
-                                int index = CandyList.IndexOf(candy) + 1;
-                                index %= CandyList.Length;
-
-                                if (CandyList[index] == CandyKindID.Pink)
-                                {
-                                    switch (UnityEngine.Random.Range(1, 101))
-                                    {
-                                        case int x when x <= Plugin.Instance.Config.FinePinkChance:
-                                            p.StoredCandies.Add(CandyList[index]);
-                                            break;
-
-                                        case int x when x <= Plugin.Instance.Config.FinePinkPillsChance + Plugin.Instance.Config.FinePinkChance:
-                                            if (InventoryItemLoader.AvailableItems.TryGetValue(ItemType.Painkillers, out var item))
-                                            {
-                                                PickupSyncInfo psi = new(ItemType.Painkillers, outputPos, Quaternion.identity, item.Weight);
-                                                ReferenceHub.HostHub.inventory.ServerCreatePickup(item, psi);
-                                            }
-
-                                            break;
-                                    }
-
-                                    p.StoredCandies.Remove(candy);
-                                    break;
-                                }
-
-                                p.StoredCandies.Remove(candy);
-                                p.StoredCandies.Add(CandyList[index]);
-                                break;
-                            }
-
-                        case Scp914KnobSetting.VeryFine:
-                            {
-                                if (UnityEngine.Random.Range(1, 101) <= Plugin.Instance.Config.VeryFineDestroyChance)
-                                {
-                                    p.StoredCandies.Remove(candy);
-                                    break;
-                                }
-
-                                int index = CandyList.IndexOf(candy) + 2;
-                                index %= CandyList.Length;
-
-                                if (CandyList[index] == CandyKindID.Pink)
-                                {
-                                    switch (UnityEngine.Random.Range(1, 101))
-                                    {
-                                        case int x when x <= Plugin.Instance.Config.VeryFinePinkChance:
-                                            p.StoredCandies.Add(CandyList[index]);
-                                            break;
-                                        case int x when x <= Plugin.Instance.Config.VeryFinePinkPillsChance + Plugin.Instance.Config.VeryFinePinkChance:
-                                            if (InventoryItemLoader.AvailableItems.TryGetValue(ItemType.Painkillers, out var item))
-                                            {
-                                                PickupSyncInfo psi = new(ItemType.Painkillers, outputPos, Quaternion.identity, item.Weight);
-                                                ReferenceHub.HostHub.inventory.ServerCreatePickup(item, psi);
-                                            }
-
-                                            break;
-                                    }
-
-                                    p.StoredCandies.Remove(candy);
-                                    break;
-                                }
-
-                                p.StoredCandies.Remove(candy);
-                                p.StoredCandies.Add(CandyList[index]);
-                                break;
-                            }
-
-                        default:
+                    case Scp914KnobSetting.OneToOne:
+                        {
                             p.StoredCandies.Remove(candy);
+                            p.StoredCandies.Add(Scp330Candies.GetRandom());
                             break;
-                    }
-                }
+                        }
 
-                if (p.StoredCandies.Count == 0)
-                    p.DestroySelf();
-                else
-                {
-                    p.NetworkExposedCandy = p.StoredCandies.Count == 1 ? p.StoredCandies.First() : CandyKindID.None;
-                    p.transform.position += moveVector;
-                    p.RefreshPositionAndRotation();
+                    case Scp914KnobSetting.Fine:
+                        {
+                            int index = CandyList.IndexOf(candy) + 1;
+                            index %= CandyList.Length;
+
+                            if (CandyList[index] == CandyKindID.Pink)
+                            {
+                                switch (UnityEngine.Random.Range(1, 101))
+                                {
+                                    case int x when x <= Plugin.Instance.Config.FinePinkChance:
+                                        p.StoredCandies.Add(CandyList[index]);
+                                        break;
+
+                                    case int x when x <= Plugin.Instance.Config.FinePinkPillsChance + Plugin.Instance.Config.FinePinkChance:
+                                        SpawnPickup(ItemType.Painkillers, outputPos);
+                                        break;
+                                }
+
+                                p.StoredCandies.Remove(candy);
+                                break;
+                            }
+
+                            p.StoredCandies.Remove(candy);
+                            p.StoredCandies.Add(CandyList[index]);
+                            break;
+                        }
+
+                    case Scp914KnobSetting.VeryFine:
+                        {
+                            if (UnityEngine.Random.Range(1, 101) <= Plugin.Instance.Config.VeryFineDestroyChance)
+                            {
+                                p.StoredCandies.Remove(candy);
+                                break;
+                            }
+
+                            int index = CandyList.IndexOf(candy) + 2;
+                            index %= CandyList.Length;
+
+                            if (CandyList[index] == CandyKindID.Pink)
+                            {
+                                switch (UnityEngine.Random.Range(1, 101))
+                                {
+                                    case int x when x <= Plugin.Instance.Config.VeryFinePinkChance:
+                                        p.StoredCandies.Add(CandyList[index]);
+                                        break;
+                                    case int x when x <= Plugin.Instance.Config.VeryFinePinkPillsChance + Plugin.Instance.Config.VeryFinePinkChance:
+                                        SpawnPickup(ItemType.Painkillers, outputPos);
+                                        break;
+                                }
+
+                                p.StoredCandies.Remove(candy);
+                                break;
+                            }
+
+                            p.StoredCandies.Remove(candy);
+                            p.StoredCandies.Add(CandyList[index]);
+                            break;
+                        }
+
+                    default:
+                        p.StoredCandies.Remove(candy);
+                        break;
                 }
             }
-            catch (Exception ex)
+
+            if (p.StoredCandies.Count == 0)
+                p.DestroySelf();
+            else
             {
-                Log.Error(ex.ToString());
+                p.NetworkExposedCandy = p.StoredCandies.Count == 1 ? p.StoredCandies.First() : CandyKindID.None;
+                p.transform.position += moveVector;
+                p.RefreshPositionAndRotation();
             }
-
-            return false;
         }
+        catch (Exception ex)
+        {
+            Log.Error(ex.ToString());
+        }
+
+        return false;
+    }
+
+    private static void SpawnPickup(ItemType type, Vector3 pos)
+    {
+        if (!InventoryItemLoader.AvailableItems.TryGetValue(type, out var item))
+            return;
+
+        PickupSyncInfo psi = new(type, pos, Quaternion.identity, item.Weight);
+        ItemPickupBase itemPickupBase = UnityEngine.Object.Instantiate(item.PickupDropModel, pos, Quaternion.identity);
+        itemPickupBase.NetworkInfo = psi;
+        NetworkServer.Spawn(itemPickupBase.gameObject);
+        itemPickupBase.InfoReceived(default, psi);
     }
 }
