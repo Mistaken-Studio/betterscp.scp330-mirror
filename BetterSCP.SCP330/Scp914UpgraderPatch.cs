@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using HarmonyLib;
-using InventorySystem;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables.Scp330;
-using Mirror;
+using Mistaken.API.Utilities;
 using PluginAPI.Core;
 using Scp914;
 using UnityEngine;
@@ -65,7 +64,7 @@ internal static class Scp914UpgraderPatch
                                         break;
 
                                     case int x when x <= Plugin.Instance.Config.FinePinkPillsChance + Plugin.Instance.Config.FinePinkChance:
-                                        SpawnPickup(ItemType.Painkillers, outputPos);
+                                        Item.CreatePickup(ItemType.Painkillers, outputPos);
                                         break;
                                 }
 
@@ -97,7 +96,7 @@ internal static class Scp914UpgraderPatch
                                         p.StoredCandies.Add(CandyList[index]);
                                         break;
                                     case int x when x <= Plugin.Instance.Config.VeryFinePinkPillsChance + Plugin.Instance.Config.VeryFinePinkChance:
-                                        SpawnPickup(ItemType.Painkillers, outputPos);
+                                        Item.CreatePickup(ItemType.Painkillers, outputPos);
                                         break;
                                 }
 
@@ -131,17 +130,5 @@ internal static class Scp914UpgraderPatch
         }
 
         return false;
-    }
-
-    private static void SpawnPickup(ItemType type, Vector3 pos)
-    {
-        if (!InventoryItemLoader.AvailableItems.TryGetValue(type, out var item))
-            return;
-
-        PickupSyncInfo psi = new(type, pos, Quaternion.identity, item.Weight);
-        ItemPickupBase itemPickupBase = UnityEngine.Object.Instantiate(item.PickupDropModel, pos, Quaternion.identity);
-        itemPickupBase.NetworkInfo = psi;
-        NetworkServer.Spawn(itemPickupBase.gameObject);
-        itemPickupBase.InfoReceived(default, psi);
     }
 }
